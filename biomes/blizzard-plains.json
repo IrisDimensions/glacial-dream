@@ -1,0 +1,20 @@
+{
+    "name": "Blizzard Plains",
+    "derivative": "SNOWY_TUNDRA",
+    "generators": [
+        {
+            "generator": "dream",
+            "max": 7,
+            "min": 3
+        }
+    ],
+    "layers": [
+        {
+            "palette": [
+                {
+                    "block": "grass_block"
+                }
+            ]
+        }
+    ]
+}

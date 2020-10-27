@@ -1,0 +1,14 @@
+{
+    "environment": "THE_END",
+    "regions": [
+        "blizzard"
+    ],
+    "postProcessing": true,
+    "decorate": true,
+    "placeObjects": true,
+    "caves": true,
+    "carving": true,
+    "name": "Glacial Dream",
+    "fluidHeight": 63,
+    "version": 1
+}

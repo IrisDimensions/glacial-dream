@@ -1,0 +1,12 @@
+{
+    "name": "Blizzard",
+    "landBiomes": [
+        "blizzard-plains"
+    ],
+    "seaBiomes": [
+        "blizzard-sea"
+    ],
+    "shoreBiomes": [
+        "blizzard-shore"
+    ]
+}

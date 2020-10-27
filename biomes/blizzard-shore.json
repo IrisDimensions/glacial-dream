@@ -1,0 +1,20 @@
+{
+    "name": "Blizzard Shore",
+    "derivative": "SNOWY_BEACH",
+    "generators": [
+        {
+            "generator": "dream",
+            "max": 7,
+            "min": 3
+        }
+    ],
+    "layers": [
+        {
+            "palette": [
+                {
+                    "block": "grass_block"
+                }
+            ]
+        }
+    ]
+}
