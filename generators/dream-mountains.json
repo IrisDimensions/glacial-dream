@@ -1,7 +1,7 @@
 {
     "interpolator": {
         "function": "BILINEAR_STARCAST_9",
-        "horizontalScale": 77
+        "horizontalScale": 66
     },
     "seed": 124996,
     "composite": [
@@ -9,7 +9,14 @@
             "seed": 39596,
             "style": {
                 "style": "FRACTAL_WATER",
-                "zoom": 2.74
+                "zoom": 4.74
+            }
+        },
+        {
+            "seed": 19596,
+            "style": {
+                "style": "IRIS",
+                "zoom": 1.25
             }
         }
     ]

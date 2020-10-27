@@ -1,13 +1,28 @@
 {
-    "name": "Blizzard Plains",
+    "name": "Blizzard Peak",
+    "rarity": 5,
     "derivative": "SNOWY_TUNDRA",
     "generators": [
         {
-            "generator": "dream",
-            "max": 7,
-            "min": 3
+            "generator": "dream-cliffs",
+            "max": 173,
+            "min": 36
         }
     ],
+    "wall": {
+        "palette": [
+            {
+                "block": "packed_ice"
+            },
+            {
+                "block": "blue_ice"
+            }
+        ],
+        "style": {
+            "style": "FRACTAL_WATER",
+            "zoom": 0.256
+        }
+    },
     "decorators": [
         {
             "chance": 1,
@@ -43,20 +58,6 @@
             ]
         }
     ],
-    "wall": {
-        "palette": [
-            {
-                "block": "packed_ice"
-            },
-            {
-                "block": "blue_ice"
-            }
-        ],
-        "style": {
-            "style": "FRACTAL_WATER",
-            "zoom": 0.256
-        }
-    },
     "slab": {
         "palette": [
             {

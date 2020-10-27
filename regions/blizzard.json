@@ -1,7 +1,9 @@
 {
     "name": "Blizzard",
     "landBiomes": [
-        "blizzard-plains"
+        "blizzard-plains",
+        "blizzard-mountains",
+        "blizzard-forest"
     ],
     "seaBiomes": [
         "blizzard-sea"

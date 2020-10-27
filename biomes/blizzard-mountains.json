@@ -1,13 +1,31 @@
 {
-    "name": "Blizzard Plains",
+    "name": "Blizzard Mointains",
     "derivative": "SNOWY_TUNDRA",
+    "rarity": 4,
     "generators": [
         {
             "generator": "dream",
-            "max": 7,
-            "min": 3
+            "max": 143,
+            "min": 36
         }
     ],
+    "children": [
+        "blizzard-mountains-cliffs"
+    ],
+    "wall": {
+        "palette": [
+            {
+                "block": "packed_ice"
+            },
+            {
+                "block": "blue_ice"
+            }
+        ],
+        "style": {
+            "style": "FRACTAL_WATER",
+            "zoom": 0.256
+        }
+    },
     "decorators": [
         {
             "chance": 1,
@@ -43,20 +61,6 @@
             ]
         }
     ],
-    "wall": {
-        "palette": [
-            {
-                "block": "packed_ice"
-            },
-            {
-                "block": "blue_ice"
-            }
-        ],
-        "style": {
-            "style": "FRACTAL_WATER",
-            "zoom": 0.256
-        }
-    },
     "slab": {
         "palette": [
             {

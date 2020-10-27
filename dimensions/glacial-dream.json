@@ -1,8 +1,40 @@
 {
-    "environment": "THE_END",
+    "environment": "NORMAL",
     "regions": [
         "blizzard"
     ],
+    "carveLayers": [
+        {
+            "maxHeight": 200,
+            "minHeight": 30,
+            "style": {
+                "style": "FRACTAL_WATER",
+                "zoom": 4
+            },
+            "threshold": 0.5
+        }
+    ],
+    "fluidPalette": {
+        "palette": [
+            {
+                "block": "packed_ice"
+            },
+            {
+                "block": "blue_ice"
+            }
+        ],
+        "style": {
+            "style": "FRACTAL_SMOKE",
+            "fracture": {
+                "style": "IRIS_DOUBLE",
+                "multiplier": 12,
+                "zoom": 0.03
+            },
+            "zoom": 0.1
+        }
+    },
+    "ravineRarity": 10,
+    "ravineRibRarity": 1,
     "postProcessing": true,
     "decorate": true,
     "placeObjects": true,

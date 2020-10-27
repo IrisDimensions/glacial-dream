@@ -4,15 +4,54 @@
     "generators": [
         {
             "generator": "dream",
-            "max": 7,
-            "min": 3
+            "max": -11,
+            "min": -46
+        }
+    ],
+    "decorators": [
+        {
+            "chance": 0.15,
+            "style": {
+                "style": "FRACTAL_WATER",
+                "zoom": 0.5
+            },
+            "variance": {
+                "style": "FRACTAL_WATER",
+                "zoom": 0.2
+            },
+            "palette": [
+                {
+                    "block": "snow",
+                    "data": {
+                        "layers": 1
+                    }
+                },
+                {
+                    "block": "snow",
+                    "data": {
+                        "layers": 2
+                    }
+                },
+                {
+                    "block": "snow",
+                    "data": {
+                        "layers": 3
+                    }
+                },
+                {
+                    "block": "snow",
+                    "data": {
+                        "layers": 4
+                    }
+                }
+            ]
         }
     ],
     "layers": [
         {
             "palette": [
                 {
-                    "block": "grass_block"
+                    "block": "blackstone"
                 }
             ]
         }

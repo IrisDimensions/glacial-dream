@@ -28,15 +28,12 @@
                             "ZOMBIE_SPAWN_REINFORCEMENTS"
                         ]},
                         "enum-reg-biome": {"enum": [
-                            "mountains",
-                            "ocean",
-                            "swamp-forest",
-                            "birch-forest",
-                            "taiga",
-                            "beach",
-                            "plains",
-                            "desert",
-                            "oak-forest"
+                            "blizzard-mountains",
+                            "blizzard-sea",
+                            "blizzard-mountains-cliffs",
+                            "blizzard-forest",
+                            "blizzard-shore",
+                            "blizzard-plains"
                         ]},
                         "enum-block-type": {"enum": [
                             "air",
@@ -2259,7 +2256,7 @@
                                 },
                                 "fluidHeight": {
                                     "maximum": 255,
-                                    "description": "fluidHeight\nThe cave zoom. Higher values makes caves spread out further and branch less often, but are thicker.\n   \nInteger\n\n* Default Value is 35\n* Minimum allowed is 0\n* Maximum allowed is 255",
+                                    "description": "fluidHeight\nThe fluid height of the cave\n   \nInteger\n\n* Default Value is 35\n* Minimum allowed is 0\n* Maximum allowed is 255",
                                     "type": "integer",
                                     "minimum": 0
                                 },
@@ -2670,6 +2667,8 @@
                             "required": [
                                 "name",
                                 "version",
+                                "ravineRibRarity",
+                                "ravineRarity",
                                 "environment",
                                 "regions",
                                 "fluidHeight"
@@ -2689,6 +2688,10 @@
                                     "description": "seaZoom\nThis zooms oceanic biomes\n   \nNumber\n\n* Default Value is 1.0\n* Minimum allowed is 1.0E-4\n* Maximum allowed is 512.0",
                                     "type": "number",
                                     "minimum": 1.0E-4
+                                },
+                                "ravines": {
+                                    "description": "ravines\nGenerate ravines or not\n   \nBoolean\n\n* Default Value is a default object (create this object to see default properties)",
+                                    "type": "boolean"
                                 },
                                 "biomeZoom": {
                                     "maximum": 512,
@@ -2768,6 +2771,11 @@
                                     "description": "lakeBiomeStyle\nThe placement style of biomes\n   \nGeneratorStyle (Object)\nA gen style\n* Default Value is a default object (create this object to see default properties)",
                                     "type": "object",
                                     "$ref": "#/definitions/obj-com-volmit-iris-object-irisgeneratorstyle"
+                                },
+                                "ravineRibRarity": {
+                                    "description": "ravineRibRarity\nThe rarity of a ravine layer having a lib (or rib) that sticks in or out by one block. Minecraft's default is 3.\n   \nInteger\n\n* Default Value is 2\n* Minimum allowed is 1",
+                                    "type": "integer",
+                                    "minimum": 1
                                 },
                                 "sky": {
                                     "description": "sky\nCreate an inverted dimension in the sky (like the nether)\n   \nDimension (Object)\nRepresents a dimension",
@@ -2849,6 +2857,15 @@
                                     "type": "number",
                                     "minimum": 1.0E-4
                                 },
+                                "aggressiveBiomeReshuffle": {
+                                    "description": "aggressiveBiomeReshuffle\nImproves the biome grid variation by shuffling the cell grid more depending on the seed. This makes biomes across multiple seeds look far different than before.\n   \nBoolean\n\n* Default Value is a default object (create this object to see default properties)",
+                                    "type": "boolean"
+                                },
+                                "forceFluid": {
+                                    "description": "forceFluid\nIf defined, If air is defined below the area, this fluid will always place\n   \nCaveFluid (Object)\nTranslate objects\n* Default Value is a default object (create this object to see default properties)",
+                                    "type": "object",
+                                    "$ref": "#/definitions/obj-com-volmit-iris-object-iriscavefluid"
+                                },
                                 "carveLayers": {
                                     "minItems": 1,
                                     "description": "carveLayers\nDefine carve layers\n   \nList of CarveLayers (Objects)\n\n* Default Value is an empty list\n* At least one entry must be defined, or just remove this list.",
@@ -2877,11 +2894,6 @@
                                     "type": "object",
                                     "$ref": "#/definitions/obj-com-volmit-iris-object-irisgeneratorstyle"
                                 },
-                                "lootTries": {
-                                    "description": "lootTries\nTry to fill a container with loot up to this many times to avoid too many empty chests.\n   \nInteger\n\n* Default Value is 5\n* Minimum allowed is 0",
-                                    "type": "integer",
-                                    "minimum": 0
-                                },
                                 "rockZoom": {
                                     "maximum": 512,
                                     "description": "rockZoom\nThe rock zoom mostly for zooming in on a wispy palette\n   \nNumber\n\n* Default Value is 5.0\n* Minimum allowed is 1.0E-4\n* Maximum allowed is 512.0",
@@ -2895,6 +2907,10 @@
                                 "resourcePack": {
                                     "description": "resourcePack\nUpon joining this world, Iris will send a resource pack request to the client. If they have previously selected yes, it will auto-switch depending on which dimension they go to.\n   \nText\n\n* Default Value is ",
                                     "type": "string"
+                                },
+                                "bedrock": {
+                                    "description": "bedrock\nShould bedrock be generated or not.\n   \nBoolean\n\n* Default Value is a default object (create this object to see default properties)",
+                                    "type": "boolean"
                                 },
                                 "terrainZoom": {
                                     "maximum": 512,
@@ -2918,6 +2934,11 @@
                                     "description": "fluidHeight\nThe fluid height for this dimension\n   \nInteger\n\n* Default Value is 63\n* Minimum allowed is 0\n* Maximum allowed is 255",
                                     "type": "integer",
                                     "minimum": 0
+                                },
+                                "ravineRarity": {
+                                    "description": "ravineRarity\nThe rarity of ravines. Each chunk has a 1 in X chance\n   \nInteger\n\n* Default Value is 50\n* Minimum allowed is 1",
+                                    "type": "integer",
+                                    "minimum": 1
                                 },
                                 "entitySpawnOverrides": {
                                     "minItems": 1,
@@ -3439,6 +3460,7 @@
                             "frosted-spruce/large-7",
                             "frosted-spruce/large-8",
                             "frosted-spruce/large-9",
+                            "structure/overworld/walled-room-1",
                             "hive/honey-nest-3",
                             "waterlogged-darkwood/smol-14",
                             "hive/honey-nest-2",
@@ -3636,6 +3658,7 @@
                             "ice-spikes/tp-3",
                             "ice-spikes/tp-2",
                             "ice-spikes/tp-1",
+                            "snowy/snowulder",
                             "structure/murky-stronghold/fc-nsw-4",
                             "structure/murky-stronghold/fc-nsw-3",
                             "structure/murky-stronghold/fc-nsw-2",
@@ -3679,6 +3702,7 @@
                             "lush-pine/lush-pine10",
                             "tree/jungletall/4",
                             "tree/jungletall/5",
+                            "structure/overworld/corner-1",
                             "birch-ponderosa/large-10",
                             "birch-ponderosa/large-11",
                             "structure/Example Temple/corner-1",
@@ -3856,6 +3880,7 @@
                             "global-clutter/BigSwordPortalSTR-unlit-2",
                             "roofed-wayward/med-6",
                             "roofed-wayward/med-5",
+                            "misc/tntower-1",
                             "structure/village/room-crop-wheat-sew-1",
                             "structure/village/room-crop-wheat-sew-2",
                             "structure/village/room-crop-wheat-sew-3",
@@ -4080,9 +4105,11 @@
                             "crystal/crystal-10",
                             "lush-pine/lush-pine2",
                             "lush-pine/lush-pine1",
+                            "cambian_drift-2",
                             "lush-pine/lush-pine4",
                             "lush-pine/lush-pine3",
                             "lush-pine/lush-pine6",
+                            "cambian_drift-1",
                             "lush-pine/lush-pine5",
                             "lush-pine/lush-pine8",
                             "lush-pine/lush-pine7",
@@ -4223,6 +4250,7 @@
                             "hazel-oak/taller-oak-1",
                             "small-birch/small-birch11",
                             "small-birch/small-birch10",
+                            "structure/overworld/t-connect-1",
                             "frosted-spruce/[Iced Variants]/smol-11",
                             "frosted-spruce/[Iced Variants]/smol-10",
                             "structure/village/cross-10",
@@ -4236,6 +4264,7 @@
                             "frosted-spruce/[Iced Variants]/smol-14",
                             "frosted-spruce/[Iced Variants]/smol-13",
                             "frosted-spruce/[Iced Variants]/smol-12",
+                            "garbage/gold-tree",
                             "hazel-oak/taller-oak-10",
                             "frosted-spruce/[Iced Variants]/smol-20",
                             "evergreen/fantasy_evergreen_medium1",
@@ -4623,6 +4652,7 @@
                             "structure/village-stone/room-8",
                             "darkoak-small/oak10",
                             "darkoak-small/oak11",
+                            "structure/overworld/cross-1",
                             "house-jap/MedJap1",
                             "house-jap/MedJap3",
                             "house-jap/MedJap2",
@@ -4661,9 +4691,13 @@
                             "structure/murky-stronghold/fc-ns-4",
                             "birch-large/birch20",
                             "birch-large/birch14",
+                            "cambian-drift-9",
                             "birch-large/birch15",
+                            "cambian-drift-8",
                             "birch-large/birch12",
+                            "cambian-drift-7",
                             "birch-large/birch13",
+                            "cambian-drift-6",
                             "birch-large/birch18",
                             "structure/cottage-lot/t-connect-1",
                             "birch-large/birch19",
@@ -4677,8 +4711,11 @@
                             "oakbush-tgarb/TGarb5",
                             "fantasyoak-medium/fantasy_oak_medium1",
                             "oakbush-tgarb/TGarb6",
+                            "cambian-drift-5",
                             "oakbush-tgarb/TGarb3",
+                            "cambian-drift-4",
                             "oakbush-tgarb/TGarb4",
+                            "cambian-drift-3",
                             "oakbush-tgarb/TGarb1",
                             "oakbush-tgarb/TGarb2",
                             "birch-sespire/altbirch-20",
@@ -4902,6 +4939,7 @@
                             "frosted-sproak/med-12",
                             "frosted-sproak/med-11",
                             "structure/ruins/cross-3",
+                            "underwater/cobble-spike",
                             "mushroom-red/organell-b-2",
                             "mushroom-red/organell-b-1",
                             "oakbush-tclutter/TClutter21",
@@ -4930,6 +4968,7 @@
                             "mushroom-red/small-organell-r-4",
                             "mushroom-red/small-organell-r-3",
                             "spruce-medium/spruce14",
+                            "structure/overworld/hall-1",
                             "mushroom-red/small-organell-r-6",
                             "spruce-medium/spruce17",
                             "mushroom-red/small-organell-r-5",
@@ -5133,6 +5172,7 @@
                             "oak/oak1",
                             "clutter/JClutter12",
                             "clutter/JClutter13",
+                            "structure/overworld/room-1",
                             "serrulata/nb-bleed2",
                             "serrulata/nb-bleed1",
                             "serrulata-bleeding-alt/ableed10",
@@ -5236,6 +5276,10 @@
                             "structure/stone-village/hall-2",
                             "structure/stone-village/hall-3",
                             "structure/stone-village/hall-4",
+                            "patch/graveldirt4",
+                            "patch/graveldirt3",
+                            "patch/graveldirt2",
+                            "patch/graveldirt1",
                             "coral-rgb/coral-yellow-3",
                             "structure/mush-huts/room-3",
                             "structure/mush-huts/room-4",
@@ -5453,11 +5497,7 @@
                             "PLAYER",
                             "UNKNOWN"
                         ]},
-                        "enum-reg-region": {"enum": [
-                            "temperate",
-                            "cold",
-                            "hot"
-                        ]},
+                        "enum-reg-region": {"enum": ["blizzard"]},
                         "oneof-enum-com-volmit-iris-object-noisestyle": {"oneOf": [
                             {
                                 "const": "STATIC",
@@ -5992,6 +6032,8 @@
                     "required": [
                         "name",
                         "version",
+                        "ravineRibRarity",
+                        "ravineRarity",
                         "environment",
                         "regions",
                         "fluidHeight"
@@ -6011,6 +6053,10 @@
                             "description": "seaZoom\nThis zooms oceanic biomes\n   \nNumber\n\n* Default Value is 1.0\n* Minimum allowed is 1.0E-4\n* Maximum allowed is 512.0",
                             "type": "number",
                             "minimum": 1.0E-4
+                        },
+                        "ravines": {
+                            "description": "ravines\nGenerate ravines or not\n   \nBoolean\n\n* Default Value is a default object (create this object to see default properties)",
+                            "type": "boolean"
                         },
                         "biomeZoom": {
                             "maximum": 512,
@@ -6090,6 +6136,11 @@
                             "description": "lakeBiomeStyle\nThe placement style of biomes\n   \nGeneratorStyle (Object)\nA gen style\n* Default Value is a default object (create this object to see default properties)",
                             "type": "object",
                             "$ref": "#/definitions/obj-com-volmit-iris-object-irisgeneratorstyle"
+                        },
+                        "ravineRibRarity": {
+                            "description": "ravineRibRarity\nThe rarity of a ravine layer having a lib (or rib) that sticks in or out by one block. Minecraft's default is 3.\n   \nInteger\n\n* Default Value is 2\n* Minimum allowed is 1",
+                            "type": "integer",
+                            "minimum": 1
                         },
                         "sky": {
                             "description": "sky\nCreate an inverted dimension in the sky (like the nether)\n   \nDimension (Object)\nRepresents a dimension",
@@ -6171,6 +6222,15 @@
                             "type": "number",
                             "minimum": 1.0E-4
                         },
+                        "aggressiveBiomeReshuffle": {
+                            "description": "aggressiveBiomeReshuffle\nImproves the biome grid variation by shuffling the cell grid more depending on the seed. This makes biomes across multiple seeds look far different than before.\n   \nBoolean\n\n* Default Value is a default object (create this object to see default properties)",
+                            "type": "boolean"
+                        },
+                        "forceFluid": {
+                            "description": "forceFluid\nIf defined, If air is defined below the area, this fluid will always place\n   \nCaveFluid (Object)\nTranslate objects\n* Default Value is a default object (create this object to see default properties)",
+                            "type": "object",
+                            "$ref": "#/definitions/obj-com-volmit-iris-object-iriscavefluid"
+                        },
                         "carveLayers": {
                             "minItems": 1,
                             "description": "carveLayers\nDefine carve layers\n   \nList of CarveLayers (Objects)\n\n* Default Value is an empty list\n* At least one entry must be defined, or just remove this list.",
@@ -6199,11 +6259,6 @@
                             "type": "object",
                             "$ref": "#/definitions/obj-com-volmit-iris-object-irisgeneratorstyle"
                         },
-                        "lootTries": {
-                            "description": "lootTries\nTry to fill a container with loot up to this many times to avoid too many empty chests.\n   \nInteger\n\n* Default Value is 5\n* Minimum allowed is 0",
-                            "type": "integer",
-                            "minimum": 0
-                        },
                         "rockZoom": {
                             "maximum": 512,
                             "description": "rockZoom\nThe rock zoom mostly for zooming in on a wispy palette\n   \nNumber\n\n* Default Value is 5.0\n* Minimum allowed is 1.0E-4\n* Maximum allowed is 512.0",
@@ -6217,6 +6272,10 @@
                         "resourcePack": {
                             "description": "resourcePack\nUpon joining this world, Iris will send a resource pack request to the client. If they have previously selected yes, it will auto-switch depending on which dimension they go to.\n   \nText\n\n* Default Value is ",
                             "type": "string"
+                        },
+                        "bedrock": {
+                            "description": "bedrock\nShould bedrock be generated or not.\n   \nBoolean\n\n* Default Value is a default object (create this object to see default properties)",
+                            "type": "boolean"
                         },
                         "terrainZoom": {
                             "maximum": 512,
@@ -6240,6 +6299,11 @@
                             "description": "fluidHeight\nThe fluid height for this dimension\n   \nInteger\n\n* Default Value is 63\n* Minimum allowed is 0\n* Maximum allowed is 255",
                             "type": "integer",
                             "minimum": 0
+                        },
+                        "ravineRarity": {
+                            "description": "ravineRarity\nThe rarity of ravines. Each chunk has a 1 in X chance\n   \nInteger\n\n* Default Value is 50\n* Minimum allowed is 1",
+                            "type": "integer",
+                            "minimum": 1
                         },
                         "entitySpawnOverrides": {
                             "minItems": 1,
@@ -6306,6 +6370,13 @@
                             "GENERIC_LUCK",
                             "HORSE_JUMP_STRENGTH",
                             "ZOMBIE_SPAWN_REINFORCEMENTS"
+                        ]},
+                        "enum-reg-mythical": {"enum": [
+                            "SkeletalKnight",
+                            "SkeletalMinion",
+                            "StaticallyChargedSheep",
+                            "SkeletonKing",
+                            "AngrySludge"
                         ]},
                         "obj-com-volmit-iris-object-irisattributemodifier": {
                             "description": "Represents an attribute modifier for an item or an entity. This allows you to create modifications to basic game attributes such as MAX_HEALTH or ARMOR_VALUE.",
@@ -7550,6 +7621,15 @@
                             "potted_crimson_roots",
                             "potted_warped_roots"
                         ]},
+                        "enum-org-bukkit-entity-panda-gene": {"enum": [
+                            "NORMAL",
+                            "LAZY",
+                            "WORRIED",
+                            "PLAYFUL",
+                            "BROWN",
+                            "WEAK",
+                            "AGGRESSIVE"
+                        ]},
                         "oneof-enum-com-volmit-iris-object-inventoryslottype": {"oneOf": [
                             {
                                 "const": "STORAGE",
@@ -7577,6 +7657,58 @@
                             "type": "object",
                             "required": ["type"],
                             "properties": {
+                                "type": {
+                                    "description": "type\nThe type of entity to spawn. To spawn a mythic mob, set this type to unknown and define mythic type.\n   \nEntityType\n\n* Default Value is a default object (create this object to see default properties)\nMust be a valid EntityType (use ctrl+space for auto complete!)",
+                                    "type": "string",
+                                    "$ref": "#/definitions/enum-org-bukkit-entity-entitytype"
+                                },
+                                "aware": {
+                                    "description": "aware\nIf this entity type is a mob, should it be aware of it's surroundings & interact with the world.\n   \nBoolean\n\n* Default Value is a default object (create this object to see default properties)",
+                                    "type": "boolean"
+                                },
+                                "invulnerable": {
+                                    "description": "invulnerable\nWhen an entity is invulnerable it can only be damaged by players increative mode.\n   \nBoolean\n\n* Default Value is a default object (create this object to see default properties)",
+                                    "type": "boolean"
+                                },
+                                "pandaHiddenGene": {
+                                    "description": "pandaHiddenGene\nThe hidden gene for a panda if the entity type is a panda\n   \nGene\n\n* Default Value is a default object (create this object to see default properties)\nMust be a valid Gene (use ctrl+space for auto complete!)",
+                                    "type": "string",
+                                    "$ref": "#/definitions/enum-org-bukkit-entity-panda-gene"
+                                },
+                                "customNameVisible": {
+                                    "description": "customNameVisible\nShould the name on this entity be visible even if you arent looking at it.\n   \nBoolean\n\n* Default Value is a default object (create this object to see default properties)",
+                                    "type": "boolean"
+                                },
+                                "helmet": {
+                                    "description": "helmet\nEntity helmet equipment\n   \nLoot (Object)\nRepresents a loot entry",
+                                    "type": "object",
+                                    "$ref": "#/definitions/obj-com-volmit-iris-object-irisloot"
+                                },
+                                "leashHolder": {
+                                    "description": "leashHolder\nIf specified, this entity will be leashed by this entity. I.e. THIS ENTITY Leashed by SPECIFIED. This has no effect on EnderDragons, Withers, Players, or Bats.Non-living entities excluding leashes will not persist as leashholders.\n   \nEntity (Object)\nRepresents an iris entity.",
+                                    "type": "object",
+                                    "$ref": "#/definitions/obj-com-volmit-iris-object-irisentity"
+                                },
+                                "boots": {
+                                    "description": "boots\nEntity boots equipment\n   \nLoot (Object)\nRepresents a loot entry",
+                                    "type": "object",
+                                    "$ref": "#/definitions/obj-com-volmit-iris-object-irisloot"
+                                },
+                                "loot": {
+                                    "description": "loot\nLoot tables for drops\n   \nLootReference (Object)\nRepresents a loot entry\n* Default Value is a default object (create this object to see default properties)",
+                                    "type": "object",
+                                    "$ref": "#/definitions/obj-com-volmit-iris-object-irislootreference"
+                                },
+                                "leggings": {
+                                    "description": "leggings\nEntity leggings equipment\n   \nLoot (Object)\nRepresents a loot entry",
+                                    "type": "object",
+                                    "$ref": "#/definitions/obj-com-volmit-iris-object-irisloot"
+                                },
+                                "offHand": {
+                                    "description": "offHand\nEntity off hand equipment\n   \nLoot (Object)\nRepresents a loot entry",
+                                    "type": "object",
+                                    "$ref": "#/definitions/obj-com-volmit-iris-object-irisloot"
+                                },
                                 "silent": {
                                     "description": "silent\nWhen an entity is silent it will not produce any sound.\n   \nBoolean\n\n* Default Value is a default object (create this object to see default properties)",
                                     "type": "boolean"
@@ -7595,18 +7727,10 @@
                                     "description": "customName\nThe custom name of this entity\n   \nText\n\n* Default Value is ",
                                     "type": "string"
                                 },
-                                "type": {
-                                    "description": "type\nThe type of entity to spawn\n   \nEntityType\n\n* Default Value is a default object (create this object to see default properties)\nMust be a valid EntityType (use ctrl+space for auto complete!)",
+                                "mythicalType": {
+                                    "description": "mythicalType\nThe type of mythic mob (if mythic mobs is installed). If this is set, make sure to set 'type' to UNKNOWN\n   \nMythic Mob Type\n\n* Default Value is \nMust be a valid Mythic Mob Type (use ctrl+space for auto complete!) Define mythic mobs with the mythic mobs plugin configuration files.",
                                     "type": "string",
-                                    "$ref": "#/definitions/enum-org-bukkit-entity-entitytype"
-                                },
-                                "aware": {
-                                    "description": "aware\nIf this entity type is a mob, should it be aware of it's surroundings & interact with the world.\n   \nBoolean\n\n* Default Value is a default object (create this object to see default properties)",
-                                    "type": "boolean"
-                                },
-                                "invulnerable": {
-                                    "description": "invulnerable\nWhen an entity is invulnerable it can only be damaged by players increative mode.\n   \nBoolean\n\n* Default Value is a default object (create this object to see default properties)",
-                                    "type": "boolean"
+                                    "$ref": "#/definitions/enum-reg-mythical"
                                 },
                                 "pickupItems": {
                                     "description": "pickupItems\nShould this entity be allowed to pickup items\n   \nBoolean\n\n* Default Value is a default object (create this object to see default properties)",
@@ -7617,9 +7741,10 @@
                                     "type": "object",
                                     "$ref": "#/definitions/obj-com-volmit-iris-object-irisloot"
                                 },
-                                "customNameVisible": {
-                                    "description": "customNameVisible\nShould the name on this entity be visible even if you arent looking at it.\n   \nBoolean\n\n* Default Value is a default object (create this object to see default properties)",
-                                    "type": "boolean"
+                                "pandaMainGene": {
+                                    "description": "pandaMainGene\nThe main gene for a panda if the entity type is a panda\n   \nGene\n\n* Default Value is a default object (create this object to see default properties)\nMust be a valid Gene (use ctrl+space for auto complete!)",
+                                    "type": "string",
+                                    "$ref": "#/definitions/enum-org-bukkit-entity-panda-gene"
                                 },
                                 "chestplate": {
                                     "description": "chestplate\nEntity chestplate equipment\n   \nLoot (Object)\nRepresents a loot entry",
@@ -7638,41 +7763,15 @@
                                     "description": "removable\nShould this entity be removed when far away\n   \nBoolean\n\n* Default Value is a default object (create this object to see default properties)",
                                     "type": "boolean"
                                 },
-                                "helmet": {
-                                    "description": "helmet\nEntity helmet equipment\n   \nLoot (Object)\nRepresents a loot entry",
-                                    "type": "object",
-                                    "$ref": "#/definitions/obj-com-volmit-iris-object-irisloot"
-                                },
-                                "leashHolder": {
-                                    "description": "leashHolder\nIf specified, this entity will be leashed by this entity. I.e. THIS ENTITY Leashed by SPECIFIED. This has no effect on EnderDragons, Withers, Players, or Bats.Non-living entities excluding leashes will not persist as leashholders.\n   \nEntity (Object)\nRepresents an iris entity.",
-                                    "type": "object",
-                                    "$ref": "#/definitions/obj-com-volmit-iris-object-irisentity"
-                                },
-                                "boots": {
-                                    "description": "boots\nEntity boots equipment\n   \nLoot (Object)\nRepresents a loot entry",
-                                    "type": "object",
-                                    "$ref": "#/definitions/obj-com-volmit-iris-object-irisloot"
+                                "baby": {
+                                    "description": "baby\nThe this entity is ageable, set it's baby status\n   \nBoolean\n\n* Default Value is a default object (create this object to see default properties)",
+                                    "type": "boolean"
                                 },
                                 "attributes": {
                                     "minItems": 1,
                                     "description": "attributes\nAttribute modifiers for this entity\n   \nList of AttributeModifiers (Objects)\n\n* Default Value is an empty list\n* At least one entry must be defined, or just remove this list.",
                                     "type": "array",
                                     "items": {"$ref": "#/definitions/obj-com-volmit-iris-object-irisattributemodifier"}
-                                },
-                                "loot": {
-                                    "description": "loot\nLoot tables for drops\n   \nLootReference (Object)\nRepresents a loot entry\n* Default Value is a default object (create this object to see default properties)",
-                                    "type": "object",
-                                    "$ref": "#/definitions/obj-com-volmit-iris-object-irislootreference"
-                                },
-                                "leggings": {
-                                    "description": "leggings\nEntity leggings equipment\n   \nLoot (Object)\nRepresents a loot entry",
-                                    "type": "object",
-                                    "$ref": "#/definitions/obj-com-volmit-iris-object-irisloot"
-                                },
-                                "offHand": {
-                                    "description": "offHand\nEntity off hand equipment\n   \nLoot (Object)\nRepresents a loot entry",
-                                    "type": "object",
-                                    "$ref": "#/definitions/obj-com-volmit-iris-object-irisloot"
                                 }
                             }
                         },
@@ -7850,6 +7949,58 @@
                     },
                     "required": ["type"],
                     "properties": {
+                        "type": {
+                            "description": "type\nThe type of entity to spawn. To spawn a mythic mob, set this type to unknown and define mythic type.\n   \nEntityType\n\n* Default Value is a default object (create this object to see default properties)\nMust be a valid EntityType (use ctrl+space for auto complete!)",
+                            "type": "string",
+                            "$ref": "#/definitions/enum-org-bukkit-entity-entitytype"
+                        },
+                        "aware": {
+                            "description": "aware\nIf this entity type is a mob, should it be aware of it's surroundings & interact with the world.\n   \nBoolean\n\n* Default Value is a default object (create this object to see default properties)",
+                            "type": "boolean"
+                        },
+                        "invulnerable": {
+                            "description": "invulnerable\nWhen an entity is invulnerable it can only be damaged by players increative mode.\n   \nBoolean\n\n* Default Value is a default object (create this object to see default properties)",
+                            "type": "boolean"
+                        },
+                        "pandaHiddenGene": {
+                            "description": "pandaHiddenGene\nThe hidden gene for a panda if the entity type is a panda\n   \nGene\n\n* Default Value is a default object (create this object to see default properties)\nMust be a valid Gene (use ctrl+space for auto complete!)",
+                            "type": "string",
+                            "$ref": "#/definitions/enum-org-bukkit-entity-panda-gene"
+                        },
+                        "customNameVisible": {
+                            "description": "customNameVisible\nShould the name on this entity be visible even if you arent looking at it.\n   \nBoolean\n\n* Default Value is a default object (create this object to see default properties)",
+                            "type": "boolean"
+                        },
+                        "helmet": {
+                            "description": "helmet\nEntity helmet equipment\n   \nLoot (Object)\nRepresents a loot entry",
+                            "type": "object",
+                            "$ref": "#/definitions/obj-com-volmit-iris-object-irisloot"
+                        },
+                        "leashHolder": {
+                            "description": "leashHolder\nIf specified, this entity will be leashed by this entity. I.e. THIS ENTITY Leashed by SPECIFIED. This has no effect on EnderDragons, Withers, Players, or Bats.Non-living entities excluding leashes will not persist as leashholders.\n   \nEntity (Object)\nRepresents an iris entity.",
+                            "type": "object",
+                            "$ref": "#/definitions/obj-com-volmit-iris-object-irisentity"
+                        },
+                        "boots": {
+                            "description": "boots\nEntity boots equipment\n   \nLoot (Object)\nRepresents a loot entry",
+                            "type": "object",
+                            "$ref": "#/definitions/obj-com-volmit-iris-object-irisloot"
+                        },
+                        "loot": {
+                            "description": "loot\nLoot tables for drops\n   \nLootReference (Object)\nRepresents a loot entry\n* Default Value is a default object (create this object to see default properties)",
+                            "type": "object",
+                            "$ref": "#/definitions/obj-com-volmit-iris-object-irislootreference"
+                        },
+                        "leggings": {
+                            "description": "leggings\nEntity leggings equipment\n   \nLoot (Object)\nRepresents a loot entry",
+                            "type": "object",
+                            "$ref": "#/definitions/obj-com-volmit-iris-object-irisloot"
+                        },
+                        "offHand": {
+                            "description": "offHand\nEntity off hand equipment\n   \nLoot (Object)\nRepresents a loot entry",
+                            "type": "object",
+                            "$ref": "#/definitions/obj-com-volmit-iris-object-irisloot"
+                        },
                         "silent": {
                             "description": "silent\nWhen an entity is silent it will not produce any sound.\n   \nBoolean\n\n* Default Value is a default object (create this object to see default properties)",
                             "type": "boolean"
@@ -7868,18 +8019,10 @@
                             "description": "customName\nThe custom name of this entity\n   \nText\n\n* Default Value is ",
                             "type": "string"
                         },
-                        "type": {
-                            "description": "type\nThe type of entity to spawn\n   \nEntityType\n\n* Default Value is a default object (create this object to see default properties)\nMust be a valid EntityType (use ctrl+space for auto complete!)",
+                        "mythicalType": {
+                            "description": "mythicalType\nThe type of mythic mob (if mythic mobs is installed). If this is set, make sure to set 'type' to UNKNOWN\n   \nMythic Mob Type\n\n* Default Value is \nMust be a valid Mythic Mob Type (use ctrl+space for auto complete!) Define mythic mobs with the mythic mobs plugin configuration files.",
                             "type": "string",
-                            "$ref": "#/definitions/enum-org-bukkit-entity-entitytype"
-                        },
-                        "aware": {
-                            "description": "aware\nIf this entity type is a mob, should it be aware of it's surroundings & interact with the world.\n   \nBoolean\n\n* Default Value is a default object (create this object to see default properties)",
-                            "type": "boolean"
-                        },
-                        "invulnerable": {
-                            "description": "invulnerable\nWhen an entity is invulnerable it can only be damaged by players increative mode.\n   \nBoolean\n\n* Default Value is a default object (create this object to see default properties)",
-                            "type": "boolean"
+                            "$ref": "#/definitions/enum-reg-mythical"
                         },
                         "pickupItems": {
                             "description": "pickupItems\nShould this entity be allowed to pickup items\n   \nBoolean\n\n* Default Value is a default object (create this object to see default properties)",
@@ -7890,9 +8033,10 @@
                             "type": "object",
                             "$ref": "#/definitions/obj-com-volmit-iris-object-irisloot"
                         },
-                        "customNameVisible": {
-                            "description": "customNameVisible\nShould the name on this entity be visible even if you arent looking at it.\n   \nBoolean\n\n* Default Value is a default object (create this object to see default properties)",
-                            "type": "boolean"
+                        "pandaMainGene": {
+                            "description": "pandaMainGene\nThe main gene for a panda if the entity type is a panda\n   \nGene\n\n* Default Value is a default object (create this object to see default properties)\nMust be a valid Gene (use ctrl+space for auto complete!)",
+                            "type": "string",
+                            "$ref": "#/definitions/enum-org-bukkit-entity-panda-gene"
                         },
                         "chestplate": {
                             "description": "chestplate\nEntity chestplate equipment\n   \nLoot (Object)\nRepresents a loot entry",
@@ -7911,41 +8055,15 @@
                             "description": "removable\nShould this entity be removed when far away\n   \nBoolean\n\n* Default Value is a default object (create this object to see default properties)",
                             "type": "boolean"
                         },
-                        "helmet": {
-                            "description": "helmet\nEntity helmet equipment\n   \nLoot (Object)\nRepresents a loot entry",
-                            "type": "object",
-                            "$ref": "#/definitions/obj-com-volmit-iris-object-irisloot"
-                        },
-                        "leashHolder": {
-                            "description": "leashHolder\nIf specified, this entity will be leashed by this entity. I.e. THIS ENTITY Leashed by SPECIFIED. This has no effect on EnderDragons, Withers, Players, or Bats.Non-living entities excluding leashes will not persist as leashholders.\n   \nEntity (Object)\nRepresents an iris entity.",
-                            "type": "object",
-                            "$ref": "#/definitions/obj-com-volmit-iris-object-irisentity"
-                        },
-                        "boots": {
-                            "description": "boots\nEntity boots equipment\n   \nLoot (Object)\nRepresents a loot entry",
-                            "type": "object",
-                            "$ref": "#/definitions/obj-com-volmit-iris-object-irisloot"
+                        "baby": {
+                            "description": "baby\nThe this entity is ageable, set it's baby status\n   \nBoolean\n\n* Default Value is a default object (create this object to see default properties)",
+                            "type": "boolean"
                         },
                         "attributes": {
                             "minItems": 1,
                             "description": "attributes\nAttribute modifiers for this entity\n   \nList of AttributeModifiers (Objects)\n\n* Default Value is an empty list\n* At least one entry must be defined, or just remove this list.",
                             "type": "array",
                             "items": {"$ref": "#/definitions/obj-com-volmit-iris-object-irisattributemodifier"}
-                        },
-                        "loot": {
-                            "description": "loot\nLoot tables for drops\n   \nLootReference (Object)\nRepresents a loot entry\n* Default Value is a default object (create this object to see default properties)",
-                            "type": "object",
-                            "$ref": "#/definitions/obj-com-volmit-iris-object-irislootreference"
-                        },
-                        "leggings": {
-                            "description": "leggings\nEntity leggings equipment\n   \nLoot (Object)\nRepresents a loot entry",
-                            "type": "object",
-                            "$ref": "#/definitions/obj-com-volmit-iris-object-irisloot"
-                        },
-                        "offHand": {
-                            "description": "offHand\nEntity off hand equipment\n   \nLoot (Object)\nRepresents a loot entry",
-                            "type": "object",
-                            "$ref": "#/definitions/obj-com-volmit-iris-object-irisloot"
                         }
                     },
                     "$id": "http://volmit.com/iris-schema/irisentity.json"
@@ -9174,7 +9292,11 @@
                                 }
                             }
                         },
-                        "enum-reg-generator": {"enum": ["vanilla"]},
+                        "enum-reg-generator": {"enum": [
+                            "dream-cliffs",
+                            "dream",
+                            "dream-mountains"
+                        ]},
                         "obj-com-volmit-iris-object-irisstructureplacement": {
                             "description": "Represents a structure placement",
                             "type": "object",
@@ -9232,6 +9354,81 @@
                                 "description": "Replace all loot tables with this table (same as clear)"
                             }
                         ]},
+                        "obj-com-volmit-iris-object-irisdecorator": {
+                            "description": "A biome decorator is used for placing flowers, grass, cacti and so on",
+                            "type": "object",
+                            "required": [
+                                "chance",
+                                "palette"
+                            ],
+                            "properties": {
+                                "partOf": {
+                                    "description": "partOf\nTells iris where this decoration is a part of. I.e. SHORE_LINE or SEA_SURFACE\n   \nDecorationPart\nRepresents a location where decorations should go\n* Default Value is a default object (create this object to see default properties)\nMust be a valid DecorationPart (use ctrl+space for auto complete!)",
+                                    "type": "string",
+                                    "$ref": "#/definitions/oneof-enum-com-volmit-iris-object-decorationpart"
+                                },
+                                "verticalZoom": {
+                                    "description": "verticalZoom\nThe vertical zoom is for wispy stack heights. Zooming this in makes stack heights more slowly change over a distance\n   \nNumber\n\n* Default Value is 1.0\n* Minimum allowed is 1.0E-4",
+                                    "type": "number",
+                                    "minimum": 1.0E-4
+                                },
+                                "chance": {
+                                    "maximum": 1,
+                                    "description": "chance\nThe chance for this decorator to decorate at a given X,Y coordinate. This is hit 256 times per chunk (per surface block)\n   \nNumber\n\n* Default Value is 0.1\n* Minimum allowed is 0.0\n* Maximum allowed is 1.0",
+                                    "type": "number",
+                                    "minimum": 0
+                                },
+                                "variance": {
+                                    "description": "variance\nThe varience dispersion is used when multiple blocks are put in the palette. Scatter scrambles them, Wispy shows streak-looking varience\n   \nGeneratorStyle (Object)\nA gen style\n* Default Value is a default object (create this object to see default properties)",
+                                    "type": "object",
+                                    "$ref": "#/definitions/obj-com-volmit-iris-object-irisgeneratorstyle"
+                                },
+                                "topPalette": {
+                                    "minItems": 1,
+                                    "description": "topPalette\nThe palette of blocks used at the very top of a 'stackMax' of higher than 1. For example, bamboo tops.\n   \nList of BlockDatas (Objects)\n\n* Default Value is an empty list\n* At least one entry must be defined, or just remove this list.",
+                                    "type": "array",
+                                    "items": {"$ref": "#/definitions/obj-com-volmit-iris-object-irisblockdata"}
+                                },
+                                "stackMax": {
+                                    "maximum": 256,
+                                    "description": "stackMax\nThe maximum repeat stack height\n   \nInteger\n\n* Default Value is 1\n* Minimum allowed is 1\n* Maximum allowed is 256",
+                                    "type": "integer",
+                                    "minimum": 1
+                                },
+                                "style": {
+                                    "description": "style\nDispersion is used to pick places to spawn. Scatter randomly places them (vanilla) or Wispy for a streak like patch system.\n   \nGeneratorStyle (Object)\nA gen style\n* Default Value is a default object (create this object to see default properties)",
+                                    "type": "object",
+                                    "$ref": "#/definitions/obj-com-volmit-iris-object-irisgeneratorstyle"
+                                },
+                                "zoom": {
+                                    "description": "zoom\nThe zoom is for zooming in or out wispy dispersions. Makes patches bigger the higher this zoom value is\n   \nNumber\n\n* Default Value is 1.0\n* Minimum allowed is 1.0E-4",
+                                    "type": "number",
+                                    "minimum": 1.0E-4
+                                },
+                                "palette": {
+                                    "minItems": 1,
+                                    "description": "palette\nThe palette of blocks to pick from when this decorator needs to place.\n   \nList of BlockDatas (Objects)\n\n* Default Value is an empty list\n* At least one entry must be defined, or just remove this list.",
+                                    "type": "array",
+                                    "items": {"$ref": "#/definitions/obj-com-volmit-iris-object-irisblockdata"}
+                                },
+                                "heightVariance": {
+                                    "description": "heightVariance\nIf this decorator has a height more than 1 this changes how it picks the height between your maxes. Scatter = random, Wispy = wavy heights\n   \nGeneratorStyle (Object)\nA gen style\n* Default Value is a default object (create this object to see default properties)",
+                                    "type": "object",
+                                    "$ref": "#/definitions/obj-com-volmit-iris-object-irisgeneratorstyle"
+                                },
+                                "varianceZoom": {
+                                    "description": "varianceZoom\nThe zoom is for zooming in or out variance. Makes patches have more or less of one type.\n   \nNumber\n\n* Default Value is 1.0\n* Minimum allowed is 1.0E-4",
+                                    "type": "number",
+                                    "minimum": 1.0E-4
+                                },
+                                "stackMin": {
+                                    "maximum": 256,
+                                    "description": "stackMin\nThe minimum repeat stack height (setting to 3 would stack 3 of <block> on top of each other\n   \nInteger\n\n* Default Value is 1\n* Minimum allowed is 1\n* Maximum allowed is 256",
+                                    "type": "integer",
+                                    "minimum": 1
+                                }
+                            }
+                        },
                         "obj-com-volmit-iris-object-irisentityinitialspawn": {
                             "description": "Represents an entity spawn during initial chunk generation",
                             "type": "object",
@@ -9998,6 +10195,7 @@
                             "frosted-spruce/large-7",
                             "frosted-spruce/large-8",
                             "frosted-spruce/large-9",
+                            "structure/overworld/walled-room-1",
                             "hive/honey-nest-3",
                             "waterlogged-darkwood/smol-14",
                             "hive/honey-nest-2",
@@ -10195,6 +10393,7 @@
                             "ice-spikes/tp-3",
                             "ice-spikes/tp-2",
                             "ice-spikes/tp-1",
+                            "snowy/snowulder",
                             "structure/murky-stronghold/fc-nsw-4",
                             "structure/murky-stronghold/fc-nsw-3",
                             "structure/murky-stronghold/fc-nsw-2",
@@ -10238,6 +10437,7 @@
                             "lush-pine/lush-pine10",
                             "tree/jungletall/4",
                             "tree/jungletall/5",
+                            "structure/overworld/corner-1",
                             "birch-ponderosa/large-10",
                             "birch-ponderosa/large-11",
                             "structure/Example Temple/corner-1",
@@ -10415,6 +10615,7 @@
                             "global-clutter/BigSwordPortalSTR-unlit-2",
                             "roofed-wayward/med-6",
                             "roofed-wayward/med-5",
+                            "misc/tntower-1",
                             "structure/village/room-crop-wheat-sew-1",
                             "structure/village/room-crop-wheat-sew-2",
                             "structure/village/room-crop-wheat-sew-3",
@@ -10639,9 +10840,11 @@
                             "crystal/crystal-10",
                             "lush-pine/lush-pine2",
                             "lush-pine/lush-pine1",
+                            "cambian_drift-2",
                             "lush-pine/lush-pine4",
                             "lush-pine/lush-pine3",
                             "lush-pine/lush-pine6",
+                            "cambian_drift-1",
                             "lush-pine/lush-pine5",
                             "lush-pine/lush-pine8",
                             "lush-pine/lush-pine7",
@@ -10782,6 +10985,7 @@
                             "hazel-oak/taller-oak-1",
                             "small-birch/small-birch11",
                             "small-birch/small-birch10",
+                            "structure/overworld/t-connect-1",
                             "frosted-spruce/[Iced Variants]/smol-11",
                             "frosted-spruce/[Iced Variants]/smol-10",
                             "structure/village/cross-10",
@@ -10795,6 +10999,7 @@
                             "frosted-spruce/[Iced Variants]/smol-14",
                             "frosted-spruce/[Iced Variants]/smol-13",
                             "frosted-spruce/[Iced Variants]/smol-12",
+                            "garbage/gold-tree",
                             "hazel-oak/taller-oak-10",
                             "frosted-spruce/[Iced Variants]/smol-20",
                             "evergreen/fantasy_evergreen_medium1",
@@ -11182,6 +11387,7 @@
                             "structure/village-stone/room-8",
                             "darkoak-small/oak10",
                             "darkoak-small/oak11",
+                            "structure/overworld/cross-1",
                             "house-jap/MedJap1",
                             "house-jap/MedJap3",
                             "house-jap/MedJap2",
@@ -11220,9 +11426,13 @@
                             "structure/murky-stronghold/fc-ns-4",
                             "birch-large/birch20",
                             "birch-large/birch14",
+                            "cambian-drift-9",
                             "birch-large/birch15",
+                            "cambian-drift-8",
                             "birch-large/birch12",
+                            "cambian-drift-7",
                             "birch-large/birch13",
+                            "cambian-drift-6",
                             "birch-large/birch18",
                             "structure/cottage-lot/t-connect-1",
                             "birch-large/birch19",
@@ -11236,8 +11446,11 @@
                             "oakbush-tgarb/TGarb5",
                             "fantasyoak-medium/fantasy_oak_medium1",
                             "oakbush-tgarb/TGarb6",
+                            "cambian-drift-5",
                             "oakbush-tgarb/TGarb3",
+                            "cambian-drift-4",
                             "oakbush-tgarb/TGarb4",
+                            "cambian-drift-3",
                             "oakbush-tgarb/TGarb1",
                             "oakbush-tgarb/TGarb2",
                             "birch-sespire/altbirch-20",
@@ -11461,6 +11674,7 @@
                             "frosted-sproak/med-12",
                             "frosted-sproak/med-11",
                             "structure/ruins/cross-3",
+                            "underwater/cobble-spike",
                             "mushroom-red/organell-b-2",
                             "mushroom-red/organell-b-1",
                             "oakbush-tclutter/TClutter21",
@@ -11489,6 +11703,7 @@
                             "mushroom-red/small-organell-r-4",
                             "mushroom-red/small-organell-r-3",
                             "spruce-medium/spruce14",
+                            "structure/overworld/hall-1",
                             "mushroom-red/small-organell-r-6",
                             "spruce-medium/spruce17",
                             "mushroom-red/small-organell-r-5",
@@ -11692,6 +11907,7 @@
                             "oak/oak1",
                             "clutter/JClutter12",
                             "clutter/JClutter13",
+                            "structure/overworld/room-1",
                             "serrulata/nb-bleed2",
                             "serrulata/nb-bleed1",
                             "serrulata-bleeding-alt/ableed10",
@@ -11795,6 +12011,10 @@
                             "structure/stone-village/hall-2",
                             "structure/stone-village/hall-3",
                             "structure/stone-village/hall-4",
+                            "patch/graveldirt4",
+                            "patch/graveldirt3",
+                            "patch/graveldirt2",
+                            "patch/graveldirt1",
                             "coral-rgb/coral-yellow-3",
                             "structure/mush-huts/room-3",
                             "structure/mush-huts/room-4",
@@ -13151,15 +13371,12 @@
                             "Yu Gothic UI Semilight"
                         ]},
                         "enum-reg-biome": {"enum": [
-                            "mountains",
-                            "ocean",
-                            "swamp-forest",
-                            "birch-forest",
-                            "taiga",
-                            "beach",
-                            "plains",
-                            "desert",
-                            "oak-forest"
+                            "blizzard-mountains",
+                            "blizzard-sea",
+                            "blizzard-mountains-cliffs",
+                            "blizzard-forest",
+                            "blizzard-shore",
+                            "blizzard-plains"
                         ]},
                         "enum-block-type": {"enum": [
                             "air",
@@ -14117,77 +14334,12 @@
                             {
                                 "const": "SEA_SURFACE",
                                 "description": "Target sea surfaces (typically for lilypads)"
+                            },
+                            {
+                                "const": "CEILING",
+                                "description": "Decorates on cave & carving ceilings or underside of overhangs"
                             }
                         ]},
-                        "obj-com-volmit-iris-object-irisbiomedecorator": {
-                            "description": "A biome decorator is used for placing flowers, grass, cacti and so on",
-                            "type": "object",
-                            "required": [
-                                "chance",
-                                "palette"
-                            ],
-                            "properties": {
-                                "partOf": {
-                                    "description": "partOf\nTells iris where this decoration is a part of. I.e. SHORE_LINE or SEA_SURFACE\n   \nDecorationPart\nRepresents a location where decorations should go\n* Default Value is a default object (create this object to see default properties)\nMust be a valid DecorationPart (use ctrl+space for auto complete!)",
-                                    "type": "string",
-                                    "$ref": "#/definitions/oneof-enum-com-volmit-iris-object-decorationpart"
-                                },
-                                "verticalZoom": {
-                                    "description": "verticalZoom\nThe vertical zoom is for wispy stack heights. Zooming this in makes stack heights more slowly change over a distance\n   \nNumber\n\n* Default Value is 1.0\n* Minimum allowed is 1.0E-4",
-                                    "type": "number",
-                                    "minimum": 1.0E-4
-                                },
-                                "chance": {
-                                    "maximum": 1,
-                                    "description": "chance\nThe chance for this decorator to decorate at a given X,Y coordinate. This is hit 256 times per chunk (per surface block)\n   \nNumber\n\n* Default Value is 0.1\n* Minimum allowed is 0.0\n* Maximum allowed is 1.0",
-                                    "type": "number",
-                                    "minimum": 0
-                                },
-                                "variance": {
-                                    "description": "variance\nThe varience dispersion is used when multiple blocks are put in the palette. Scatter scrambles them, Wispy shows streak-looking varience\n   \nGeneratorStyle (Object)\nA gen style\n* Default Value is a default object (create this object to see default properties)",
-                                    "type": "object",
-                                    "$ref": "#/definitions/obj-com-volmit-iris-object-irisgeneratorstyle"
-                                },
-                                "stackMax": {
-                                    "maximum": 256,
-                                    "description": "stackMax\nThe maximum repeat stack height\n   \nInteger\n\n* Default Value is 1\n* Minimum allowed is 1\n* Maximum allowed is 256",
-                                    "type": "integer",
-                                    "minimum": 1
-                                },
-                                "style": {
-                                    "description": "style\nDispersion is used to pick places to spawn. Scatter randomly places them (vanilla) or Wispy for a streak like patch system.\n   \nGeneratorStyle (Object)\nA gen style\n* Default Value is a default object (create this object to see default properties)",
-                                    "type": "object",
-                                    "$ref": "#/definitions/obj-com-volmit-iris-object-irisgeneratorstyle"
-                                },
-                                "zoom": {
-                                    "description": "zoom\nThe zoom is for zooming in or out wispy dispersions. Makes patches bigger the higher this zoom value is\n   \nNumber\n\n* Default Value is 1.0\n* Minimum allowed is 1.0E-4",
-                                    "type": "number",
-                                    "minimum": 1.0E-4
-                                },
-                                "palette": {
-                                    "minItems": 1,
-                                    "description": "palette\nThe palette of blocks to pick from when this decorator needs to place.\n   \nList of BlockDatas (Objects)\n\n* Default Value is an empty list\n* At least one entry must be defined, or just remove this list.",
-                                    "type": "array",
-                                    "items": {"$ref": "#/definitions/obj-com-volmit-iris-object-irisblockdata"}
-                                },
-                                "heightVariance": {
-                                    "description": "heightVariance\nIf this decorator has a height more than 1 this changes how it picks the height between your maxes. Scatter = random, Wispy = wavy heights\n   \nGeneratorStyle (Object)\nA gen style\n* Default Value is a default object (create this object to see default properties)",
-                                    "type": "object",
-                                    "$ref": "#/definitions/obj-com-volmit-iris-object-irisgeneratorstyle"
-                                },
-                                "varianceZoom": {
-                                    "description": "varianceZoom\nThe zoom is for zooming in or out variance. Makes patches have more or less of one type.\n   \nNumber\n\n* Default Value is 1.0\n* Minimum allowed is 1.0E-4",
-                                    "type": "number",
-                                    "minimum": 1.0E-4
-                                },
-                                "stackMin": {
-                                    "maximum": 256,
-                                    "description": "stackMin\nThe minimum repeat stack height (setting to 3 would stack 3 of <block> on top of each other\n   \nInteger\n\n* Default Value is 1\n* Minimum allowed is 1\n* Maximum allowed is 256",
-                                    "type": "integer",
-                                    "minimum": 1
-                                }
-                            }
-                        },
                         "obj-com-volmit-iris-object-irisdepositgenerator": {
                             "description": "Creates ore & other block deposits underground",
                             "type": "object",
@@ -15070,9 +15222,9 @@
                         },
                         "decorators": {
                             "minItems": 1,
-                            "description": "decorators\nDecorators are used for things like tall grass, bisected flowers, and even kelp or cactus (random heights)\n   \nList of BiomeDecorators (Objects)\n\n* Default Value is an empty list\n* At least one entry must be defined, or just remove this list.",
+                            "description": "decorators\nDecorators are used for things like tall grass, bisected flowers, and even kelp or cactus (random heights)\n   \nList of Decorators (Objects)\n\n* Default Value is an empty list\n* At least one entry must be defined, or just remove this list.",
                             "type": "array",
-                            "items": {"$ref": "#/definitions/obj-com-volmit-iris-object-irisbiomedecorator"}
+                            "items": {"$ref": "#/definitions/obj-com-volmit-iris-object-irisdecorator"}
                         },
                         "fluidType": {
                             "description": "fluidType\nThe type of fluid if this biome is underwater. To 'defer' this value to whatever the parent dimension fluid type is, use an emtpy string.\n   \nText\n\n* Default Value is ",
@@ -15142,15 +15294,12 @@
                             "ZOMBIE_SPAWN_REINFORCEMENTS"
                         ]},
                         "enum-reg-biome": {"enum": [
-                            "mountains",
-                            "ocean",
-                            "swamp-forest",
-                            "birch-forest",
-                            "taiga",
-                            "beach",
-                            "plains",
-                            "desert",
-                            "oak-forest"
+                            "blizzard-mountains",
+                            "blizzard-sea",
+                            "blizzard-mountains-cliffs",
+                            "blizzard-forest",
+                            "blizzard-shore",
+                            "blizzard-plains"
                         ]},
                         "enum-block-type": {"enum": [
                             "air",
@@ -18529,6 +18678,7 @@
                             "frosted-spruce/large-7",
                             "frosted-spruce/large-8",
                             "frosted-spruce/large-9",
+                            "structure/overworld/walled-room-1",
                             "hive/honey-nest-3",
                             "waterlogged-darkwood/smol-14",
                             "hive/honey-nest-2",
@@ -18726,6 +18876,7 @@
                             "ice-spikes/tp-3",
                             "ice-spikes/tp-2",
                             "ice-spikes/tp-1",
+                            "snowy/snowulder",
                             "structure/murky-stronghold/fc-nsw-4",
                             "structure/murky-stronghold/fc-nsw-3",
                             "structure/murky-stronghold/fc-nsw-2",
@@ -18769,6 +18920,7 @@
                             "lush-pine/lush-pine10",
                             "tree/jungletall/4",
                             "tree/jungletall/5",
+                            "structure/overworld/corner-1",
                             "birch-ponderosa/large-10",
                             "birch-ponderosa/large-11",
                             "structure/Example Temple/corner-1",
@@ -18946,6 +19098,7 @@
                             "global-clutter/BigSwordPortalSTR-unlit-2",
                             "roofed-wayward/med-6",
                             "roofed-wayward/med-5",
+                            "misc/tntower-1",
                             "structure/village/room-crop-wheat-sew-1",
                             "structure/village/room-crop-wheat-sew-2",
                             "structure/village/room-crop-wheat-sew-3",
@@ -19170,9 +19323,11 @@
                             "crystal/crystal-10",
                             "lush-pine/lush-pine2",
                             "lush-pine/lush-pine1",
+                            "cambian_drift-2",
                             "lush-pine/lush-pine4",
                             "lush-pine/lush-pine3",
                             "lush-pine/lush-pine6",
+                            "cambian_drift-1",
                             "lush-pine/lush-pine5",
                             "lush-pine/lush-pine8",
                             "lush-pine/lush-pine7",
@@ -19313,6 +19468,7 @@
                             "hazel-oak/taller-oak-1",
                             "small-birch/small-birch11",
                             "small-birch/small-birch10",
+                            "structure/overworld/t-connect-1",
                             "frosted-spruce/[Iced Variants]/smol-11",
                             "frosted-spruce/[Iced Variants]/smol-10",
                             "structure/village/cross-10",
@@ -19326,6 +19482,7 @@
                             "frosted-spruce/[Iced Variants]/smol-14",
                             "frosted-spruce/[Iced Variants]/smol-13",
                             "frosted-spruce/[Iced Variants]/smol-12",
+                            "garbage/gold-tree",
                             "hazel-oak/taller-oak-10",
                             "frosted-spruce/[Iced Variants]/smol-20",
                             "evergreen/fantasy_evergreen_medium1",
@@ -19713,6 +19870,7 @@
                             "structure/village-stone/room-8",
                             "darkoak-small/oak10",
                             "darkoak-small/oak11",
+                            "structure/overworld/cross-1",
                             "house-jap/MedJap1",
                             "house-jap/MedJap3",
                             "house-jap/MedJap2",
@@ -19751,9 +19909,13 @@
                             "structure/murky-stronghold/fc-ns-4",
                             "birch-large/birch20",
                             "birch-large/birch14",
+                            "cambian-drift-9",
                             "birch-large/birch15",
+                            "cambian-drift-8",
                             "birch-large/birch12",
+                            "cambian-drift-7",
                             "birch-large/birch13",
+                            "cambian-drift-6",
                             "birch-large/birch18",
                             "structure/cottage-lot/t-connect-1",
                             "birch-large/birch19",
@@ -19767,8 +19929,11 @@
                             "oakbush-tgarb/TGarb5",
                             "fantasyoak-medium/fantasy_oak_medium1",
                             "oakbush-tgarb/TGarb6",
+                            "cambian-drift-5",
                             "oakbush-tgarb/TGarb3",
+                            "cambian-drift-4",
                             "oakbush-tgarb/TGarb4",
+                            "cambian-drift-3",
                             "oakbush-tgarb/TGarb1",
                             "oakbush-tgarb/TGarb2",
                             "birch-sespire/altbirch-20",
@@ -19992,6 +20157,7 @@
                             "frosted-sproak/med-12",
                             "frosted-sproak/med-11",
                             "structure/ruins/cross-3",
+                            "underwater/cobble-spike",
                             "mushroom-red/organell-b-2",
                             "mushroom-red/organell-b-1",
                             "oakbush-tclutter/TClutter21",
@@ -20020,6 +20186,7 @@
                             "mushroom-red/small-organell-r-4",
                             "mushroom-red/small-organell-r-3",
                             "spruce-medium/spruce14",
+                            "structure/overworld/hall-1",
                             "mushroom-red/small-organell-r-6",
                             "spruce-medium/spruce17",
                             "mushroom-red/small-organell-r-5",
@@ -20223,6 +20390,7 @@
                             "oak/oak1",
                             "clutter/JClutter12",
                             "clutter/JClutter13",
+                            "structure/overworld/room-1",
                             "serrulata/nb-bleed2",
                             "serrulata/nb-bleed1",
                             "serrulata-bleeding-alt/ableed10",
@@ -20326,6 +20494,10 @@
                             "structure/stone-village/hall-2",
                             "structure/stone-village/hall-3",
                             "structure/stone-village/hall-4",
+                            "patch/graveldirt4",
+                            "patch/graveldirt3",
+                            "patch/graveldirt2",
+                            "patch/graveldirt1",
                             "coral-rgb/coral-yellow-3",
                             "structure/mush-huts/room-3",
                             "structure/mush-huts/room-4",
@@ -23511,6 +23683,7 @@
                             "frosted-spruce/large-7",
                             "frosted-spruce/large-8",
                             "frosted-spruce/large-9",
+                            "structure/overworld/walled-room-1",
                             "hive/honey-nest-3",
                             "waterlogged-darkwood/smol-14",
                             "hive/honey-nest-2",
@@ -23708,6 +23881,7 @@
                             "ice-spikes/tp-3",
                             "ice-spikes/tp-2",
                             "ice-spikes/tp-1",
+                            "snowy/snowulder",
                             "structure/murky-stronghold/fc-nsw-4",
                             "structure/murky-stronghold/fc-nsw-3",
                             "structure/murky-stronghold/fc-nsw-2",
@@ -23751,6 +23925,7 @@
                             "lush-pine/lush-pine10",
                             "tree/jungletall/4",
                             "tree/jungletall/5",
+                            "structure/overworld/corner-1",
                             "birch-ponderosa/large-10",
                             "birch-ponderosa/large-11",
                             "structure/Example Temple/corner-1",
@@ -23928,6 +24103,7 @@
                             "global-clutter/BigSwordPortalSTR-unlit-2",
                             "roofed-wayward/med-6",
                             "roofed-wayward/med-5",
+                            "misc/tntower-1",
                             "structure/village/room-crop-wheat-sew-1",
                             "structure/village/room-crop-wheat-sew-2",
                             "structure/village/room-crop-wheat-sew-3",
@@ -24152,9 +24328,11 @@
                             "crystal/crystal-10",
                             "lush-pine/lush-pine2",
                             "lush-pine/lush-pine1",
+                            "cambian_drift-2",
                             "lush-pine/lush-pine4",
                             "lush-pine/lush-pine3",
                             "lush-pine/lush-pine6",
+                            "cambian_drift-1",
                             "lush-pine/lush-pine5",
                             "lush-pine/lush-pine8",
                             "lush-pine/lush-pine7",
@@ -24295,6 +24473,7 @@
                             "hazel-oak/taller-oak-1",
                             "small-birch/small-birch11",
                             "small-birch/small-birch10",
+                            "structure/overworld/t-connect-1",
                             "frosted-spruce/[Iced Variants]/smol-11",
                             "frosted-spruce/[Iced Variants]/smol-10",
                             "structure/village/cross-10",
@@ -24308,6 +24487,7 @@
                             "frosted-spruce/[Iced Variants]/smol-14",
                             "frosted-spruce/[Iced Variants]/smol-13",
                             "frosted-spruce/[Iced Variants]/smol-12",
+                            "garbage/gold-tree",
                             "hazel-oak/taller-oak-10",
                             "frosted-spruce/[Iced Variants]/smol-20",
                             "evergreen/fantasy_evergreen_medium1",
@@ -24695,6 +24875,7 @@
                             "structure/village-stone/room-8",
                             "darkoak-small/oak10",
                             "darkoak-small/oak11",
+                            "structure/overworld/cross-1",
                             "house-jap/MedJap1",
                             "house-jap/MedJap3",
                             "house-jap/MedJap2",
@@ -24733,9 +24914,13 @@
                             "structure/murky-stronghold/fc-ns-4",
                             "birch-large/birch20",
                             "birch-large/birch14",
+                            "cambian-drift-9",
                             "birch-large/birch15",
+                            "cambian-drift-8",
                             "birch-large/birch12",
+                            "cambian-drift-7",
                             "birch-large/birch13",
+                            "cambian-drift-6",
                             "birch-large/birch18",
                             "structure/cottage-lot/t-connect-1",
                             "birch-large/birch19",
@@ -24749,8 +24934,11 @@
                             "oakbush-tgarb/TGarb5",
                             "fantasyoak-medium/fantasy_oak_medium1",
                             "oakbush-tgarb/TGarb6",
+                            "cambian-drift-5",
                             "oakbush-tgarb/TGarb3",
+                            "cambian-drift-4",
                             "oakbush-tgarb/TGarb4",
+                            "cambian-drift-3",
                             "oakbush-tgarb/TGarb1",
                             "oakbush-tgarb/TGarb2",
                             "birch-sespire/altbirch-20",
@@ -24974,6 +25162,7 @@
                             "frosted-sproak/med-12",
                             "frosted-sproak/med-11",
                             "structure/ruins/cross-3",
+                            "underwater/cobble-spike",
                             "mushroom-red/organell-b-2",
                             "mushroom-red/organell-b-1",
                             "oakbush-tclutter/TClutter21",
@@ -25002,6 +25191,7 @@
                             "mushroom-red/small-organell-r-4",
                             "mushroom-red/small-organell-r-3",
                             "spruce-medium/spruce14",
+                            "structure/overworld/hall-1",
                             "mushroom-red/small-organell-r-6",
                             "spruce-medium/spruce17",
                             "mushroom-red/small-organell-r-5",
@@ -25205,6 +25395,7 @@
                             "oak/oak1",
                             "clutter/JClutter12",
                             "clutter/JClutter13",
+                            "structure/overworld/room-1",
                             "serrulata/nb-bleed2",
                             "serrulata/nb-bleed1",
                             "serrulata-bleeding-alt/ableed10",
@@ -25308,6 +25499,10 @@
                             "structure/stone-village/hall-2",
                             "structure/stone-village/hall-3",
                             "structure/stone-village/hall-4",
+                            "patch/graveldirt4",
+                            "patch/graveldirt3",
+                            "patch/graveldirt2",
+                            "patch/graveldirt1",
                             "coral-rgb/coral-yellow-3",
                             "structure/mush-huts/room-3",
                             "structure/mush-huts/room-4",
@@ -28151,6 +28346,11 @@
                     },
                     "required": ["name"],
                     "properties": {
+                        "minPicked": {
+                            "description": "minPicked\nThe minimum amount of loot that can be picked in this table at a time.\n   \nInteger\n\n* Default Value is 1\n* Minimum allowed is 0",
+                            "type": "integer",
+                            "minimum": 0
+                        },
                         "name": {
                             "minLength": 2,
                             "description": "name\nThe name of this loot table\n   \nText\n\n* Default Value is \n* Minimum Length allowed is 2",
@@ -28163,7 +28363,7 @@
                             "items": {"$ref": "#/definitions/obj-com-volmit-iris-object-irisloot"}
                         },
                         "maxPicked": {
-                            "description": "maxPicked\nThe maximum amount of loot that can be picked in this table at a time.\n   \nInteger\n\n* Default Value is 3\n* Minimum allowed is 1",
+                            "description": "maxPicked\nThe maximum amount of loot that can be picked in this table at a time.\n   \nInteger\n\n* Default Value is 5\n* Minimum allowed is 1",
                             "type": "integer",
                             "minimum": 1
                         },

@@ -1,11 +1,12 @@
 {
-    "name": "Blizzard Plains",
-    "derivative": "SNOWY_TUNDRA",
+    "name": "Blizzard Forest",
+    "rarity": 2,
+    "derivative": "SNOWY_TAIGA",
     "generators": [
         {
             "generator": "dream",
-            "max": 7,
-            "min": 3
+            "max": 22,
+            "min": 13
         }
     ],
     "decorators": [
